@@ -2,7 +2,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FuncionarioCrud implements Crud<Funcionario> {
+public class  FuncionarioCrud implements Crud<Funcionario> {
     public void inserir(Funcionario f) throws Exception {
         String sql = "INSERT INTO funcionario (nome, matricula, cargo, telefone) VALUES (?, ?, ?, ?)";
         try (Connection con = Conexao.conectar();
