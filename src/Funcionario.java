@@ -13,8 +13,6 @@ public class Funcionario extends Pessoa {
     public void setMatricula(String matricula) { this.matricula = matricula; }
     public void setCargo(String cargo) { this.cargo = cargo; }
 
-    @Override
-    public String getTipoPessoa() { return "Funcionário"; }
 
     @Override
     public String getDescricao() { return getNome() + " - " + matricula; }

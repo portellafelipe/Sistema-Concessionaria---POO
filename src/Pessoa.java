@@ -16,5 +16,6 @@ public abstract class Pessoa implements Identificavel {
     public void setNome(String nome) { this.nome = nome; }
     public void setTelefone(String telefone) { this.telefone = telefone; }
 
-    public abstract String getTipoPessoa();
+    @Override
+    public abstract String getDescricao();
 }

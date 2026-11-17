@@ -58,16 +58,53 @@ public class VendaCrud implements Crud<Venda> {
     }
 
     public void atualizar(Venda v) throws Exception {
-        String sql = "UPDATE venda SET id_cliente=?, id_funcionario=?, id_veiculo=?, data_venda=?, valor=? WHERE id_venda=?";
-        try (Connection con = Conexao.conectar();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, v.getCliente().getId());
-            ps.setInt(2, v.getFuncionario().getId());
-            ps.setInt(3, v.getVeiculo().getId());
-            ps.setDate(4, Date.valueOf(v.getData()));
-            ps.setBigDecimal(5, v.getValor());
-            ps.setInt(6, v.getId());
-            ps.executeUpdate();
+        try (Connection con = Conexao.conectar()) {
+            con.setAutoCommit(false);
+            try {
+                int veiculoAnterior;
+                try (PreparedStatement consulta = con.prepareStatement(
+                        "SELECT id_veiculo FROM venda WHERE id_venda=? FOR UPDATE")) {
+                    consulta.setInt(1, v.getId());
+                    try (ResultSet rs = consulta.executeQuery()) {
+                        if (!rs.next()) {
+                            throw new SQLException("Venda não encontrada.");
+                        }
+                        veiculoAnterior = rs.getInt("id_veiculo");
+                    }
+                }
+
+                int novoVeiculo = v.getVeiculo().getId();
+
+                if (veiculoAnterior != novoVeiculo) {
+                    try (PreparedStatement liberar = con.prepareStatement(
+                            "UPDATE veiculo SET situacao='Disponível' WHERE id_veiculo=?");
+                         PreparedStatement reservar = con.prepareStatement(
+                                 "UPDATE veiculo SET situacao='Vendido' WHERE id_veiculo=? AND situacao='Disponível'")) {
+                        liberar.setInt(1, veiculoAnterior);
+                        liberar.executeUpdate();
+                        reservar.setInt(1, novoVeiculo);
+                        if (reservar.executeUpdate() == 0) {
+                            throw new SQLException("O novo veículo não está disponível.");
+                        }
+                    }
+                }
+
+                String sql = "UPDATE venda SET id_cliente=?, id_funcionario=?, id_veiculo=?, data_venda=?, valor=? WHERE id_venda=?";
+                try (PreparedStatement ps = con.prepareStatement(sql)) {
+                    ps.setInt(1, v.getCliente().getId());
+                    ps.setInt(2, v.getFuncionario().getId());
+                    ps.setInt(3, novoVeiculo);
+                    ps.setDate(4, Date.valueOf(v.getData()));
+                    ps.setBigDecimal(5, v.getValor());
+                    ps.setInt(6, v.getId());
+                    ps.executeUpdate();
+                }
+
+                con.commit();
+            } catch (Exception e) {
+                con.rollback();
+                throw e;
+            }
         }
     }
 

@@ -104,7 +104,7 @@ public class TelaPrincipal extends JFrame {
         JTextField[] campos = {id, nome, cpf, telefone, email};
         painel.add(painelCampos(new String[]{"ID", "Nome", "CPF", "Telefone", "E-mail"}, campos), BorderLayout.NORTH);
 
-        JTable tabela = criarTabela("ID", "Nome", "CPF", "Telefone", "E-mail");
+        JTable tabela = criarTabela("ID", "Nome", "CPF", "Telefone", "E-mail", "Resumo");
         DefaultTableModel modelo = (DefaultTableModel) tabela.getModel();
         List<Cliente> registros = new ArrayList<>();
 
@@ -117,7 +117,7 @@ public class TelaPrincipal extends JFrame {
             try {
                 registros.addAll(clientes.listar());
                 for (Cliente c : registros) {
-                    modelo.addRow(new Object[]{c.getId(), c.getNome(), c.getCpf(), c.getTelefone(), c.getEmail()});
+                    modelo.addRow(new Object[]{c.getId(), c.getNome(), c.getCpf(), c.getTelefone(), c.getEmail(), descricao(c)});
                 }
             } catch (Exception e) { erro(e); }
         };
@@ -155,7 +155,7 @@ public class TelaPrincipal extends JFrame {
         JTextField[] campos = {id, nome, matricula, cargo, telefone};
         painel.add(painelCampos(new String[]{"ID", "Nome", "Matrícula", "Cargo", "Telefone"}, campos), BorderLayout.NORTH);
 
-        JTable tabela = criarTabela("ID", "Nome", "Matrícula", "Cargo", "Telefone");
+        JTable tabela = criarTabela("ID", "Nome", "Matrícula", "Cargo", "Telefone", "Resumo");
         DefaultTableModel modelo = (DefaultTableModel) tabela.getModel();
         List<Funcionario> registros = new ArrayList<>();
         JButton cadastrar = botao("Cadastrar"), atualizar = botao("Atualizar");
@@ -167,7 +167,7 @@ public class TelaPrincipal extends JFrame {
             try {
                 registros.addAll(funcionarios.listar());
                 for (Funcionario f : registros) {
-                    modelo.addRow(new Object[]{f.getId(), f.getNome(), f.getMatricula(), f.getCargo(), f.getTelefone()});
+                    modelo.addRow(new Object[]{f.getId(), f.getNome(), f.getMatricula(), f.getCargo(), f.getTelefone(), descricao(f)});
                 }
             } catch (Exception e) { erro(e); }
         };
@@ -205,7 +205,7 @@ public class TelaPrincipal extends JFrame {
         JTextField[] campos = {id, marca, modeloVeiculo, ano, preco, situacao};
         painel.add(painelCampos(new String[]{"ID", "Marca", "Modelo", "Ano", "Preço", "Situação"}, campos), BorderLayout.NORTH);
 
-        JTable tabela = criarTabela("ID", "Marca", "Modelo", "Ano", "Preço", "Situação");
+        JTable tabela = criarTabela("ID", "Marca", "Modelo", "Ano", "Preço", "Situação", "Descrição");
         DefaultTableModel modelo = (DefaultTableModel) tabela.getModel();
         List<Veiculo> registros = new ArrayList<>();
         JButton cadastrar = botao("Cadastrar"), atualizar = botao("Atualizar");
@@ -217,7 +217,7 @@ public class TelaPrincipal extends JFrame {
             try {
                 registros.addAll(veiculos.listar());
                 for (Veiculo v : registros) {
-                    modelo.addRow(new Object[]{v.getId(), v.getMarca(), v.getModelo(), v.getAno(), v.getPreco(), v.getSituacao()});
+                    modelo.addRow(new Object[]{v.getId(), v.getMarca(), v.getModelo(), v.getAno(), v.getPreco(), v.getSituacao(), descricao(v)});
                 }
             } catch (Exception e) { erro(e); }
         };
@@ -257,7 +257,7 @@ public class TelaPrincipal extends JFrame {
         JTextField[] campos = {clienteId, funcionarioId, veiculoId, valor};
         painel.add(painelCampos(new String[]{"ID do cliente", "ID do funcionário", "ID do veículo", "Valor da venda"}, campos), BorderLayout.NORTH);
 
-        JTable tabela = criarTabela("ID da venda", "Cliente", "Veículo", "Data", "Valor");
+        JTable tabela = criarTabela("ID da venda", "Cliente", "Veículo", "Data", "Valor", "Descrição");
         DefaultTableModel modelo = (DefaultTableModel) tabela.getModel();
         JButton registrar = botao("Registrar venda"), recarregar = botao("Recarregar vendas");
 
@@ -265,7 +265,7 @@ public class TelaPrincipal extends JFrame {
             modelo.setRowCount(0);
             try {
                 for (Venda v : vendas.listar()) {
-                    modelo.addRow(new Object[]{v.getId(), v.getCliente().getNome(), v.getVeiculo().getDescricao(), v.getData(), v.getValor()});
+                    modelo.addRow(new Object[]{v.getId(), v.getCliente().getNome(), v.getVeiculo().getDescricao(), v.getData(), v.getValor(), descricao(v)});
                 }
             } catch (Exception e) { erro(e); }
         };
@@ -306,6 +306,10 @@ public class TelaPrincipal extends JFrame {
     private Veiculo buscarVeiculo(int id) throws Exception {
         for (Veiculo v : veiculos.listar()) if (v.getId() == id) return v;
         throw new Exception("Veículo não encontrado.");
+    }
+
+    private String descricao(Identificavel objeto) {
+        return objeto.getDescricao();
     }
 
     private void limparCampos(JTextField... campos) {
